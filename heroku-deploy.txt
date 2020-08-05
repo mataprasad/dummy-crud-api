@@ -1,0 +1,7 @@
+﻿from solution director --
+
+1) docker build -t registry.heroku.com/<app-name-in-heroku>/web .
+
+2) docker push registry.heroku.com/<app-name-in-heroku>/web
+
+3) heroku container:release web --app <app-name-in-heroku>

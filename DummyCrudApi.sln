@@ -1,0 +1,35 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyCrudApi", "DummyCrudApi\DummyCrudApi.csproj", "{FD6843C7-A7D4-45C8-9A03-09B3934631E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbConnectionBuilderProvider", "DbConnectionBuilderProvider\DbConnectionBuilderProvider.csproj", "{FE529510-78FD-4C1D-9AC0-E96F4C093246}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbConnectionBuilderProvider.SQLiteConnectionBuilder", "DbConnectionBuilderProvider.SQLiteConnectionBuilder\DbConnectionBuilderProvider.SQLiteConnectionBuilder.csproj", "{E1E2DF36-CE26-4AFD-913F-B443C734CB8D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2AF65ADB-763E-46B0-A76F-E2D19953098A}"
+	ProjectSection(SolutionItems) = preProject
+		Dockerfile = Dockerfile
+		heroku-deploy.txt = heroku-deploy.txt
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FD6843C7-A7D4-45C8-9A03-09B3934631E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD6843C7-A7D4-45C8-9A03-09B3934631E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD6843C7-A7D4-45C8-9A03-09B3934631E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD6843C7-A7D4-45C8-9A03-09B3934631E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE529510-78FD-4C1D-9AC0-E96F4C093246}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE529510-78FD-4C1D-9AC0-E96F4C093246}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE529510-78FD-4C1D-9AC0-E96F4C093246}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE529510-78FD-4C1D-9AC0-E96F4C093246}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1E2DF36-CE26-4AFD-913F-B443C734CB8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1E2DF36-CE26-4AFD-913F-B443C734CB8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1E2DF36-CE26-4AFD-913F-B443C734CB8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1E2DF36-CE26-4AFD-913F-B443C734CB8D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
