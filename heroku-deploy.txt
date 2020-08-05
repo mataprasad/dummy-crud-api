@@ -1,4 +1,4 @@
-﻿from solution director --
+﻿from solution directory --
 
 1) docker build -t registry.heroku.com/<app-name-in-heroku>/web .
 
