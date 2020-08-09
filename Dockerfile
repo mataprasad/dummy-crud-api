@@ -10,6 +10,9 @@ WORKDIR /src
 COPY DummyCrudApi/DummyCrudApi.csproj DummyCrudApi/
 COPY DbConnectionBuilderProvider/DbConnectionBuilderProvider.csproj DbConnectionBuilderProvider/
 COPY DbConnectionBuilderProvider.SQLiteConnectionBuilder/DbConnectionBuilderProvider.SQLiteConnectionBuilder.csproj DbConnectionBuilderProvider.SQLiteConnectionBuilder/
+COPY DbContextProvider/DbContextProvider.csproj DbContextProvider/
+COPY DbContextProvider.FirebaseRealtimeDb/DbContextProvider.FirebaseRealtimeDb.csproj DbContextProvider.FirebaseRealtimeDb/
+COPY Retrofit/Retrofit.csproj Retrofit/
 RUN dotnet restore "DummyCrudApi/DummyCrudApi.csproj"
 COPY . .
 WORKDIR "/src/DummyCrudApi"
@@ -20,7 +23,5 @@ RUN dotnet publish "DummyCrudApi.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
-ENV ASPNETCORE_Environment=Production
 COPY --from=publish /app/publish .
-#ENTRYPOINT ["dotnet", "DummyCrudApi.dll"]
-CMD ["dotnet","DummyCrudApi.dll"]
+ENTRYPOINT ["dotnet", "DummyCrudApi.dll"]
