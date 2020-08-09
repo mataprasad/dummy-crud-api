@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using DummyCrudApi.Models;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace DummyCrudApi.Controllers
 {

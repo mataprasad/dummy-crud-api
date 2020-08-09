@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <StartupObject>Retrofit.Example.Program</StartupObject>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Castle.Core" Version="4.4.1" />
+    <PackageReference Include="RestSharp.Newtonsoft.Json" Version="1.5.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Example\" />
+  </ItemGroup>
+</Project>

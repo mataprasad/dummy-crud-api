@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DummyCrudApi.Services;
+using DbContextProvider;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace DummyCrudApi.Controllers
 {
+    [ServiceFilter(typeof(ApiKeyFilter))]
     public class DummyCrudApiController : ControllerBase
     {
         protected readonly IDbContext dbContext;
@@ -19,6 +16,35 @@ namespace DummyCrudApi.Controllers
         {
             this.dbContext = dbContext;
             this.logger = logger;
+        }
+    }
+
+    public class ApiKeyFilter : IActionFilter
+    {
+        private IDbContext dbContext;
+
+        public ApiKeyFilter(IDbContext dbContext)
+        {
+            this.dbContext = dbContext;
+        }
+
+        public void OnActionExecuted(ActionExecutedContext context)
+        {
+        }
+
+        public void OnActionExecuting(ActionExecutingContext context)
+        {
+            var apiKey = context.HttpContext.Request.Headers[Startup.API_KEY_NAME].ToString();
+            if(String.IsNullOrWhiteSpace(apiKey))
+            {
+                context.Result = new UnauthorizedObjectResult("API Key missing ins request.");
+                return;
+            }
+            this.dbContext.GlobalSetting[IDbContext.CurrentUserSettingKey] = apiKey;
+            if(!this.dbContext.IsDbExists)
+            {
+                context.Result = new UnauthorizedObjectResult("Not a valid API Key.");
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Data;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using DbConnectionBuilderProvider;
+using DummyCrudApi.Controllers;
 using DummyCrudApi.Fx;
 using DummyCrudApi.Services;
 using Microsoft.AspNetCore.Builder;
@@ -16,7 +17,10 @@ namespace DummyCrudApi
 {
     public class Startup
     {
+        public const string API_KEY_NAME = "X-API-KEY";
+
         private IWebHostEnvironment env;
+
         public Startup(Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
         {
             this.env = env;
@@ -36,6 +40,7 @@ namespace DummyCrudApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
+            services.AddScoped<ApiKeyFilter>();
             services.AddControllersWithViews();
             services.AddSwaggerGen(c =>
             {
@@ -51,15 +56,36 @@ namespace DummyCrudApi
                         Url = new Uri("https://github.com/mataprasad"),
                     }
                 });
+                c.AddSecurityDefinition(API_KEY_NAME, new OpenApiSecurityScheme
+                {
+                    Name = API_KEY_NAME,
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = ""
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "X-API-KEY"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+                c.OperationFilter<SwaggerUnauthorizedResponse>();
             });
         }
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
             // Register your own things directly with Autofac, like:
-            StartupHelper.RegisterDbConnectionBuilder(this.env, Configuration, builder);
-            builder.Register<Func<IDbConnection>>(ctx => ctx.Resolve<IDbConnectionBuilder>().GetConnection);
-            builder.RegisterType<DefaultDbContext>().As<IDbContext>();
+            StartupHelper.LoadDynamicAutofacModule(this.env, Configuration, builder, "IDbConnectionBuilder");
+            StartupHelper.LoadDynamicAutofacModule(this.env, Configuration, builder, "IDbContext");
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

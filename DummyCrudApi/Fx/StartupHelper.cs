@@ -11,7 +11,7 @@ namespace DummyCrudApi.Fx
 {
     public class StartupHelper
     {
-        public static void RegisterDbConnectionBuilder(IWebHostEnvironment env,IConfiguration configuration,ContainerBuilder builder)
+        public static void LoadDynamicAutofacModule(IWebHostEnvironment env, IConfiguration configuration, ContainerBuilder builder,string providerKeyInConfig)
         {
             var path = Path.GetDirectoryName(typeof(StartupHelper).Assembly.Location);
             if (String.IsNullOrWhiteSpace(path))
@@ -19,7 +19,7 @@ namespace DummyCrudApi.Fx
                 return;
             }
 
-            var assemblyName = String.Format("{0}.dll", configuration["IDbConnectionBuilder"]);
+            var assemblyName = String.Format("{0}.dll", configuration[providerKeyInConfig]);
 
             //  Gets all compiled assemblies.
             //  This is particularly useful when extending applications functionality from 3rd parties,
