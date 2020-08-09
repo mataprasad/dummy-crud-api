@@ -22,10 +22,12 @@ namespace DummyCrudApi.Controllers
             if (!string.IsNullOrWhiteSpace(token))
             {
                 var httpClient = new HttpClient();
-                httpClient.DefaultRequestHeaders.Add("Authorization", string.Format("Bearer {0}", token));
-                httpClient.DefaultRequestHeaders.Add("Content-Type", "application/json");
-                httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.heroku+json; version=3");
-                httpClient.DeleteAsync("https://api.heroku.com/apps/dummy-crud-api/dynos");
+                var request = new HttpRequestMessage();
+                request.Method = HttpMethod.Delete;
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Add("Accept", "application/vnd.heroku+json; version=3");
+                request.RequestUri = new System.Uri("https://api.heroku.com/apps/dummy-crud-api/dynos");
+                var resp = httpClient.SendAsync(request).Result;
             }
             return Ok("Done!");
         }
