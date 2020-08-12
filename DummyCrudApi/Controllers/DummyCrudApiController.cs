@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using DbContextProvider;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -35,15 +36,22 @@ namespace DummyCrudApi.Controllers
         public void OnActionExecuting(ActionExecutingContext context)
         {
             var apiKey = context.HttpContext.Request.Headers[Startup.API_KEY_NAME].ToString();
-            if(String.IsNullOrWhiteSpace(apiKey))
+            if (String.IsNullOrWhiteSpace(apiKey))
             {
-                context.Result = new UnauthorizedObjectResult("API Key missing ins request.");
+                context.Result = new UnauthorizedObjectResult("API Key missing in request.");
                 return;
             }
-            this.dbContext.GlobalSetting[IDbContext.CurrentUserSettingKey] = apiKey;
-            if(!this.dbContext.IsDbExists)
+            try
             {
-                context.Result = new UnauthorizedObjectResult("Not a valid API Key.");
+                this.dbContext.GlobalSetting[IDbContext.CurrentUserSettingKey] = apiKey;
+                if (!this.dbContext.IsDbExists)
+                {
+                    context.Result = new UnauthorizedObjectResult("Not a valid API Key.");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                context.Result = new UnauthorizedObjectResult(ex.Message);
             }
         }
     }

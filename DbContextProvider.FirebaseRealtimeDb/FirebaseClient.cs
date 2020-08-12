@@ -1,48 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
-using Castle.DynamicProxy;
-using RestSharp;
-using Retrofit;
-using Retrofit.Net.Attributes.Methods;
-using Retrofit.Net.Attributes.Parameters;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace DbContextProvider.FirebaseRealtimeDb
 {
-    public interface FirebaseClient
+    public class FirebaseClient
     {
         public const string FIREBASE_DB_URL_CONFIG_KEY = "FirebaseDbUrl";
+        public const string FIREBASE_HTTP_CLIENT_NAME = "FIREBASE_HTTP_CLIENT";
+        private HttpClient httpClient;
 
-        [Get("/{user}/{table}.json")]
-        RestResponse<List<T>> Get<T>([Path("user")] string user, [Path("table")] string table);
+        public FirebaseClient(IConfiguration configuration, IHttpClientFactory httpClient)
+        {
+            this.httpClient = httpClient.CreateClient(FIREBASE_HTTP_CLIENT_NAME);
+            this.httpClient.BaseAddress = new Uri(configuration[FIREBASE_DB_URL_CONFIG_KEY]);
+        }
 
-        [Get("/{user}/{table}.json")]
-        RestResponse<T> GetSingle<T>([Path("user")] string user, [Path("table")] string table);
+        public string Get(string url)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var resp = this.httpClient.SendAsync(request).Result;
+            resp?.EnsureSuccessStatusCode();
+            return resp?.Content?.ReadAsStringAsync().Result;
+        }
 
-        RestResponse Raw(IRestRequest rest);
+        public IEnumerable<T> Get<T>(string url, bool isList = false)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            return this.httpClient.SendAsync<T>(request, isList).Result;
+        }
+
+        public HttpResponseMessage Execute(HttpMethod method, string url, object body = null)
+        {
+            var request = new HttpRequestMessage(method, url);
+            if (body != null)
+            {
+                var json = JsonConvert.SerializeObject(body);
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+            }
+            var resp = this.httpClient.SendAsync(request).Result;
+            resp?.EnsureSuccessStatusCode();
+            return resp;
+        }
     }
 
-    public class FirebaseCallInterceptor : IHttpMiddleware
+    public class RefreshAndSetFirebaseAuthToken : DelegatingHandler
     {
         private GoogleAuthHelper googleAuthHelper;
 
-        public FirebaseCallInterceptor(GoogleAuthHelper googleAuthHelper)
+        public RefreshAndSetFirebaseAuthToken(GoogleAuthHelper googleAuthHelper)
         {
             this.googleAuthHelper = googleAuthHelper;
         }
 
-        public IInvocation After(IInvocation restRequest)
-        {
-            return restRequest;
-        }
-
-        public IRestRequest Before(IRestRequest restRequest)
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
             var token = this.googleAuthHelper?.GetAccessToken();
             if (!String.IsNullOrWhiteSpace(token))
             {
-                restRequest.AddHeader("Authorization", String.Concat("Bearer ", token));
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             }
-            return restRequest;
+            return await base.SendAsync(request, cancellationToken);
         }
     }
 }

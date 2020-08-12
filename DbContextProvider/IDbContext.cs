@@ -8,37 +8,13 @@ namespace DbContextProvider
     public interface IDbContext
     {
         public const string CurrentUserSettingKey = "user";
-        IDictionary<string,string> GlobalSetting { get; }
+        IDictionary<string, string> GlobalSetting { get; }
         bool IsDbExists { get; }
         string Tag { get; }
-        QueryInfo QueryInfo(Query query, string tableName);
-        int Execute(QueryInfo queryInfo, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        IEnumerable<T> Query<T>(QueryInfo queryInfo, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null);
-        object ExecuteScalar(QueryInfo queryInfo, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        IEnumerable<T> QueryRaw<T>(string query);
-        string QuerySingleRaw(string query);
-        IEnumerable<dynamic> Query(QueryInfo queryInfo, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null);
-    }
-
-    public class QueryInfo
-    {
-        public SqlResult SqlResult { get; set; }
-
-        public QueryInfo(SqlResult sqlResult)
-        {
-            this.SqlResult = sqlResult;
-        }
-
-        public string Query
-        {
-            get
-            {
-                return this.SqlResult.Sql;
-            }
-        }
-
-        public string TableName { get; set; }
-
-        public Dictionary<string, object> Params => this.SqlResult.NamedBindings;
+        IEnumerable<T> PagedList<T>(string tableName, int pageSize, int pageNo);
+        T Single<T>(string tableName, object id, string idColumn = "id");
+        bool Delete(string tableName, object id, string idColumn = "id");
+        bool Insert(string tableName, object data, object id, string idColumn = "id");
+        bool Update(string tableName, object data, object id, string idColumn = "id");
     }
 }

@@ -4,20 +4,19 @@ using System.Data;
 using SqlKata;
 using SqlKata.Compilers;
 using Dapper;
+using System.Linq;
 
 namespace DbContextProvider
 {
     public class DefaultDbContext : IDbContext
     {
-        private Compiler compiler;
-        private Func<IDbConnection> dbConnection;
         private Dictionary<string, string> globalSetting;
+        private SqlHelper dbContext;
 
         public DefaultDbContext(Func<IDbConnection> dbConnection, Compiler compiler)
         {
-            this.compiler = compiler;
-            this.dbConnection = dbConnection;
             this.globalSetting = new Dictionary<string, string>();
+            this.dbContext = new SqlHelper(dbConnection,compiler);
         }
 
         public string Tag => "DefaultDbContext";
@@ -28,11 +27,57 @@ namespace DbContextProvider
         {
             get
             {
-                using (var db = dbConnection())
-                {
-                    return db.ExecuteScalar<int>("select 1 ") > 0;
-                }
+                var queryInfo = new QueryInfo(new SqlResult() { Sql = "SELECT 1" });
+                return Convert.ToInt32(dbContext.ExecuteScalar(queryInfo)) > 0;
             }
+        }
+
+        public bool Delete(string tableName, object id, string idColumn = "id")
+        {
+            var query = new Query(tableName).Where(idColumn, id).AsDelete();
+            var queryInfo = dbContext.QueryInfo(query, tableName);
+            return dbContext.Execute(queryInfo) > 0;
+        }
+
+        public bool Insert(string tableName, object data, object id, string idColumn = "id")
+        {
+            var query = new Query(tableName).AsInsert(data);
+            var queryInfo = dbContext.QueryInfo(query, tableName);
+            return dbContext.Execute(queryInfo) > 0;
+        }
+
+        public IEnumerable<T> PagedList<T>(string tableName, int pageSize, int pageNo)
+        {
+            var offset = (pageNo - 1) * pageSize;
+            var query = new Query(tableName).Offset(offset).Limit(pageSize);
+            var queryInfo = dbContext.QueryInfo(query, tableName);
+            return dbContext.Query<T>(queryInfo) ?? new List<T>();
+        }
+
+        public T Single<T>(string tableName, object id, string idColumn = "id")
+        {
+            var query = new Query(tableName).Where(idColumn, id);
+            var queryInfo = dbContext.QueryInfo(query, tableName);
+            return (dbContext.Query<T>(queryInfo) ?? new List<T>()).FirstOrDefault();
+        }
+
+        public bool Update(string tableName, object data, object id, string idColumn = "id")
+        {
+            var query = new Query(tableName).Where(idColumn, id).AsUpdate(data);
+            var queryInfo = dbContext.QueryInfo(query, tableName);
+            return dbContext.Execute(queryInfo) > 0;
+        }
+    }
+
+    public class SqlHelper
+    {
+        private Compiler compiler;
+        private Func<IDbConnection> dbConnection;
+
+        public SqlHelper(Func<IDbConnection> dbConnection, Compiler compiler)
+        {
+            this.compiler = compiler;
+            this.dbConnection = dbConnection;
         }
 
         public QueryInfo QueryInfo(Query query, string tableName)
@@ -95,5 +140,27 @@ namespace DbContextProvider
         {
             return new DynamicParameters(queryInfo.Params);
         }
+    }
+
+    public class QueryInfo
+    {
+        public SqlResult SqlResult { get; set; }
+
+        public QueryInfo(SqlResult sqlResult)
+        {
+            this.SqlResult = sqlResult;
+        }
+
+        public string Query
+        {
+            get
+            {
+                return this.SqlResult.Sql;
+            }
+        }
+
+        public string TableName { get; set; }
+
+        public Dictionary<string, object> Params => this.SqlResult.NamedBindings;
     }
 }

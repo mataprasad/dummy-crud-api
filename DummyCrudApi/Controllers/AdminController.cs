@@ -11,22 +11,27 @@ namespace DummyCrudApi.Controllers
     [ApiController]
     public class AdminController : DummyCrudApiController
     {
+        private HttpClient httpClient;
 
-        public AdminController(IDbContext dbContext, ILogger<AdminController> logger)
-            : base(dbContext, logger) { }
+        public AdminController(IHttpClientFactory httpClient,IDbContext dbContext, ILogger<AdminController> logger)
+            : base(dbContext, logger) {
+            this.httpClient = httpClient.CreateClient();
+        }
 
         [HttpPost("reset-data")]
         public ActionResult ResetData()
         {
-            var token = System.Environment.GetEnvironmentVariable("AuthorizationToken");
-            if (!string.IsNullOrWhiteSpace(token))
+            var token = System.Environment.GetEnvironmentVariable("AUTHORIZATION_TOKEN");
+            var appName = System.Environment.GetEnvironmentVariable("APP_NAME");
+            //dummy-crud-api
+            if (!string.IsNullOrWhiteSpace(token) && !string.IsNullOrWhiteSpace(appName))
             {
-                var httpClient = new HttpClient();
                 var request = new HttpRequestMessage();
                 request.Method = HttpMethod.Delete;
                 request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
                 request.Headers.Add("Accept", "application/vnd.heroku+json; version=3");
-                request.RequestUri = new System.Uri("https://api.heroku.com/apps/dummy-crud-api/dynos");
+                request.RequestUri = new System.Uri(string.Format("https://api.heroku.com/apps/{0}/dynos",appName));
+                
                 var resp = httpClient.SendAsync(request).Result;
             }
             return Ok("Done!");

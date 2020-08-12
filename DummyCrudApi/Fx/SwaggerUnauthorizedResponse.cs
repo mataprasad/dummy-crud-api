@@ -12,6 +12,15 @@ namespace DummyCrudApi.Fx
             {
                 Description = "Unauthorized"
             });
+
+            if (context.ApiDescription.HttpMethod.ToUpper() == "POST")
+            {
+                operation.Responses.Remove("200");
+                operation.Responses.Add("201", new OpenApiResponse()
+                {
+                    Description = "Created"
+                });
+            }
         }
     }
 }

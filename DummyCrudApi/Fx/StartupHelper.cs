@@ -4,14 +4,27 @@ using System.Linq;
 using System.Reflection;
 using Autofac;
 using Autofac.Core;
+using DbContextProvider;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DummyCrudApi.Fx
 {
-    public class StartupHelper
+    public static class StartupHelper
     {
-        public static void LoadDynamicAutofacModule(IWebHostEnvironment env, IConfiguration configuration, ContainerBuilder builder,string providerKeyInConfig)
+        public static IServiceCollection AddDynamicRegistartion(this IServiceCollection services, IConfiguration configuration, string providerKeyInConfig)
+        {
+            CallMethodsFromReflection<DbContextProviderDI>(configuration, providerKeyInConfig, (module) => module.AddDependencies(services));
+            return services;
+        }
+
+        public static void LoadDynamicAutofacModule(IWebHostEnvironment env, IConfiguration configuration, ContainerBuilder builder, string providerKeyInConfig)
+        {
+            CallMethodsFromReflection<IModule>(configuration, providerKeyInConfig, (module) => builder.RegisterModule(module));
+        }
+
+        private static void CallMethodsFromReflection<T>(IConfiguration configuration,string providerKeyInConfig,Action<T> invoker)
         {
             var path = Path.GetDirectoryName(typeof(StartupHelper).Assembly.Location);
             if (String.IsNullOrWhiteSpace(path))
@@ -32,14 +45,14 @@ namespace DummyCrudApi.Fx
                 //  Gets the all modules from each assembly to be registered.
                 //  Make sure that each module **MUST** have a parameterless constructor.
                 var modules = assembly.GetTypes()
-                                      .Where(p => typeof(IModule).IsAssignableFrom(p)
+                                      .Where(p => typeof(T).IsAssignableFrom(p)
                                                   && !p.IsAbstract)
-                                      .Select(p => (IModule)Activator.CreateInstance(p));
+                                      .Select(p => (T)Activator.CreateInstance(p));
 
                 //  Regsiters each module.
                 foreach (var module in modules)
                 {
-                    builder.RegisterModule(module);
+                    invoker?.Invoke(module);
                 }
             }
         }

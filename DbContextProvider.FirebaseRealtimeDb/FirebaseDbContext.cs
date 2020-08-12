@@ -1,25 +1,19 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
-using System.Data;
-using Newtonsoft.Json;
+using System.Net.Http;
 using Newtonsoft.Json.Linq;
-using Fdb=Firebase.Database;
-using RestSharp;
-using SqlKata;
-using Firebase.Database.Query;
 
 namespace DbContextProvider.FirebaseRealtimeDb
 {
     public class FirebaseDbContext : IDbContext
     {
-        private FirebaseClientFactory firebaseClientFactory;
         private FirebaseClient firebaseClient;
         private Dictionary<string, string> globalSetting;
 
-        public FirebaseDbContext(FirebaseClientFactory firebaseClientFactory)
+        public FirebaseDbContext(FirebaseClient firebaseClient)
         {
-            this.firebaseClientFactory = firebaseClientFactory;
-            this.firebaseClient = this.firebaseClientFactory.Get();
+            this.firebaseClient = firebaseClient;
             this.globalSetting = new Dictionary<string, string>();
         }
 
@@ -31,69 +25,48 @@ namespace DbContextProvider.FirebaseRealtimeDb
         {
             get
             {
-                var request = new RestRequest(String.Format("/{0}.json?shallow=true", globalSetting["user"]), Method.GET);
-                var resp = firebaseClient.Raw(request);
-                return resp != null && JToken.Parse(resp.Content).HasValues;
+                var resp = this.firebaseClient.Get($"/{globalSetting["user"]}.json?shallow=true");
+                return resp != null && JToken.Parse(resp).HasValues;
             }
         }
 
-        public QueryInfo QueryInfo(Query query, string tableName)
+        public IEnumerable<T> PagedList<T>(string tableName, int pageSize, int pageNo)
         {
-            var qInfo = new QueryInfo(new SqlResult());
-            qInfo.TableName = tableName.NormalizeAsFirebaseDbKey();
-            return qInfo;
+            return this.firebaseClient.Get<T>($"/{globalSetting["user"]}/{tableName.AsFirebaseNodeKey()}.json", true);
         }
 
-        public int Execute(QueryInfo queryInfo, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public T Single<T>(string tableName, object id, string idColumn = "id")
         {
-            throw new NotImplementedException();
+            return this.firebaseClient.Get<T>($"/{globalSetting["user"]}/{tableName.AsFirebaseNodeKey()}/{id}.json").FirstOrDefault();
         }
 
-        public object ExecuteScalar(QueryInfo queryInfo, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public bool Delete(string tableName, object id, string idColumn = "id")
         {
-            throw new NotImplementedException();
+            var resp = this.firebaseClient.Execute(HttpMethod.Delete, $"/{globalSetting["user"]}/{tableName.AsFirebaseNodeKey()}/{id}.json");
+            return resp.StatusCode == System.Net.HttpStatusCode.OK;
         }
 
-        public IEnumerable<T> Query<T>(QueryInfo queryInfo, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null)
+        public bool Insert(string tableName, object data, object id, string idColumn = "id")
         {
-
-            var firebase = new Fdb.FirebaseClient("");
-            var dinos =firebase
-   .Child("dinosaurs")
-   .OrderByKey()
-   .StartAt("pterodactyl")
-   .LimitToFirst(2).BuildUrlAsync().Result;
-
-
-
-            var data = firebaseClient.Get<T>(GlobalSetting[IDbContext.CurrentUserSettingKey], queryInfo.TableName);
-            return data.Data;
+            var resp = this.firebaseClient.Execute(HttpMethod.Post, $"/{globalSetting["user"]}/{tableName.AsFirebaseNodeKey()}.json", data);
+            var body = JToken.Parse(resp.Content.ReadAsStringAsync().Result);
+            var name = body["name"];
+            var updatedData = JObject.FromObject(data);
+            updatedData["_key"] = name;
+            var yes = Update(tableName, updatedData, name, idColumn);
+            return resp.StatusCode == System.Net.HttpStatusCode.OK && yes;
         }
 
-        public IEnumerable<dynamic> Query(QueryInfo queryInfo, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null)
+        public bool Update(string tableName, object data, object id, string idColumn = "id")
         {
-            var data = firebaseClient.Get<dynamic>(GlobalSetting[IDbContext.CurrentUserSettingKey], queryInfo.TableName);
-            return data.Data;
-        }
-
-        public IEnumerable<T> QueryRaw<T>(string query)
-        {
-            var request = new RestRequest(query, Method.GET);
-            var resp = firebaseClient.Raw(request);
-            return JsonConvert.DeserializeObject<List<T>>(resp.Content);
-        }
-
-        public string QuerySingleRaw(string query)
-        {
-            var request = new RestRequest(query, Method.GET);
-
-            return firebaseClient.Raw(request)?.Content;
+            var resp = this.firebaseClient.Execute(HttpMethod.Put, $"/{globalSetting["user"]}/{tableName.AsFirebaseNodeKey()}/{id}.json", data);
+            return resp.StatusCode == System.Net.HttpStatusCode.OK;
         }
     }
 
     public static class FirebaseDbContextExt
     {
-        public static string NormalizeAsFirebaseDbKey(this string str)
+        public static string AsFirebaseNodeKey(this string str)
         {
             return str?.Trim().ToLower();
         }

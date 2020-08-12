@@ -2,8 +2,7 @@
 using Autofac;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Configuration;
-using Retrofit;
-using Retrofit.Net;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DbContextProvider.FirebaseRealtimeDb
 {
@@ -17,14 +16,20 @@ namespace DbContextProvider.FirebaseRealtimeDb
                 return GoogleCredential.FromJson(File.ReadAllText(configuration["gcreds"]));
             }).SingleInstance();
             builder.RegisterType<GoogleAuthHelper>().SingleInstance();
-            builder.RegisterType<FirebaseCallInterceptor>().As<IHttpMiddleware>().SingleInstance();
-            builder.Register(c =>
-            {
-                var dbUrl = c.Resolve<IConfiguration>()[FirebaseClient.FIREBASE_DB_URL_CONFIG_KEY];
-                return new RestAdapter(dbUrl, new[] { c.Resolve<IHttpMiddleware>() });
-            }).SingleInstance();
-            builder.RegisterType<FirebaseClientFactory>().SingleInstance();
+            builder.RegisterType<RefreshAndSetFirebaseAuthToken>().InstancePerLifetimeScope();
+            builder.RegisterType<FirebaseClient>().InstancePerLifetimeScope();
             builder.RegisterType<FirebaseDbContext>().As<IDbContext>().InstancePerLifetimeScope();
+        }
+    }
+
+    public class DIExt : DbContextProviderDI
+    {
+        public override IServiceCollection AddDependencies(IServiceCollection services)
+        {
+            services
+                .AddHttpClient(FirebaseClient.FIREBASE_HTTP_CLIENT_NAME)
+                .AddHttpMessageHandler(di => di.GetService<RefreshAndSetFirebaseAuthToken>());
+            return services;
         }
     }
 }

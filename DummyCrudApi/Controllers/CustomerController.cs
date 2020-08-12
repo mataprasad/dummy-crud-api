@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DbContextProvider;
@@ -38,8 +39,9 @@ namespace DummyCrudApi.Controllers
         [HttpPost]
         public ActionResult<Customer> Post([FromBody] Customer value)
         {
-            dbContext.Insert("Customer", value);
-            return Get(value.Id);
+            value.Id = DateTime.UtcNow.Ticks.ToString();
+            dbContext.Insert("Customer", value, value.Id);
+            return StatusCode(201, "Created");
         }
 
         [HttpPut("{id}")]
@@ -51,7 +53,7 @@ namespace DummyCrudApi.Controllers
                 value.Id = id;
                 dbContext.Update("Customer", value, id);
             }
-            return Get(value.Id);
+            return Get(value._key);
         }
 
         [HttpDelete("{id}")]

@@ -1,11 +1,8 @@
 using System;
-using System.Data;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using DbConnectionBuilderProvider;
 using DummyCrudApi.Controllers;
 using DummyCrudApi.Fx;
-using DummyCrudApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +18,7 @@ namespace DummyCrudApi
 
         private IWebHostEnvironment env;
 
-        public Startup(Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             this.env = env;
             var builder = new ConfigurationBuilder()
@@ -40,6 +37,7 @@ namespace DummyCrudApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
+            services.AddHttpClient();
             services.AddScoped<ApiKeyFilter>();
             services.AddControllersWithViews();
             services.AddSwaggerGen(c =>
@@ -79,6 +77,8 @@ namespace DummyCrudApi
                 });
                 c.OperationFilter<SwaggerUnauthorizedResponse>();
             });
+            services.AddDynamicRegistartion(Configuration, "IDbConnectionBuilder");
+            services.AddDynamicRegistartion(Configuration, "IDbContext");
         }
 
         public void ConfigureContainer(ContainerBuilder builder)

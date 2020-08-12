@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DbContextProvider;
@@ -25,7 +26,7 @@ namespace DummyCrudApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Category> Get(long id)
+        public ActionResult<Category> Get(string id)
         {
             var obj = dbContext.Single<Category>("Category", id);
             if (obj != null)
@@ -38,24 +39,24 @@ namespace DummyCrudApi.Controllers
         [HttpPost]
         public ActionResult<Category> Post([FromBody] Category value)
         {
-            dbContext.Insert("Category", value);
-            return Get(value.Id);
+            value.Id = DateTime.UtcNow.Ticks;
+            dbContext.Insert("Category", value, value.Id);
+            return StatusCode(201, "Created");
         }
 
         [HttpPut("{id}")]
-        public ActionResult<Category> Put(long id, [FromBody] Category value)
+        public ActionResult<Category> Put(string id, [FromBody] Category value)
         {
             var obj = dbContext.Single<Category>("Category", id);
             if (obj != null)
             {
-                value.Id = id;
                 dbContext.Update("Category", value, id);
             }
-            return Get(value.Id);
+            return Get(value._key);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
+        public IActionResult Delete(string id)
         {
             dbContext.Delete("Category", id);
             return Ok("Deleted!");

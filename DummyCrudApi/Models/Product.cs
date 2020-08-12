@@ -1,7 +1,7 @@
 ﻿using System;
 namespace DummyCrudApi.Models
 {
-	public class Product
+	public class Product : ModelBase
 	{
 		public long Id { get; set; }
 		public string ProductName { get; set; }
