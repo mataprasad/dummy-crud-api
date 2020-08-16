@@ -1,10 +1,12 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DbContextProvider
+namespace DependencyInjection.Extensions
 {
-    public abstract class DbContextProviderDI
+    public abstract class DIModule
     {
+        public DIModule() { }
+
         public abstract IServiceCollection AddDependencies(IServiceCollection services);
     }
 }

@@ -1,15 +1,17 @@
-﻿using System;
-using Autofac;
+﻿using DependencyInjection.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using SqlKata.Compilers;
 
 namespace DbConnectionBuilderProvider.SQLiteConnectionBuilder
 {
-    public class DI : Module
+    public class DI : DIModule
     {
-        protected override void Load(ContainerBuilder builder)
+
+        public override IServiceCollection AddDependencies(IServiceCollection services)
         {
-            builder.RegisterType<SqliteCompiler>().As<Compiler>().SingleInstance();
-            builder.RegisterType<SQLiteConnectionBuilder>().As<IDbConnectionBuilder>().SingleInstance();
+            services.AddSingleton<Compiler, SqliteCompiler>();
+            services.AddSingleton<IDbConnectionBuilder, SQLiteConnectionBuilder>();
+            return services;
         }
     }
 }

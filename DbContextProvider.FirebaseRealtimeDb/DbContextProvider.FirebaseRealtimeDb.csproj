@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DbContextProvider\DbContextProvider.csproj" />
+    <ProjectReference Include="..\DependencyInjection.Extensions\DependencyInjection.Extensions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Google.Apis.Auth" Version="1.48.0" />

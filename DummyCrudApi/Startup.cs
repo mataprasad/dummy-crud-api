@@ -1,6 +1,5 @@
 using System;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
+using DbContextProvider;
 using DummyCrudApi.Controllers;
 using DummyCrudApi.Fx;
 using Microsoft.AspNetCore.Builder;
@@ -18,20 +17,13 @@ namespace DummyCrudApi
 
         private IWebHostEnvironment env;
 
-        public Startup(IWebHostEnvironment env)
+        public Startup(IWebHostEnvironment env, IConfiguration configuration)
         {
             this.env = env;
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-            this.Configuration = builder.Build();
+            this.Configuration = configuration;
         }
 
-        public IConfigurationRoot Configuration { get; private set; }
-
-        public ILifetimeScope AutofacContainer { get; private set; }
+        public IConfiguration Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -81,18 +73,13 @@ namespace DummyCrudApi
             services.AddDynamicRegistartion(Configuration, "IDbContext");
         }
 
-        public void ConfigureContainer(ContainerBuilder builder)
-        {
-            // Register your own things directly with Autofac, like:
-            StartupHelper.LoadDynamicAutofacModule(this.env, Configuration, builder, "IDbConnectionBuilder");
-            StartupHelper.LoadDynamicAutofacModule(this.env, Configuration, builder, "IDbContext");
-        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,IHostApplicationLifetime lifetime)
         {
-            // If, for some reason, you need a reference to the built container, you
-            // can use the convenience extension method GetAutofacRoot.
-            this.AutofacContainer = app.ApplicationServices.GetAutofacRoot();
+            lifetime.ApplicationStarted.Register(() => {
+                var scope = app.ApplicationServices.CreateScope();
+                scope.ServiceProvider.GetService<IDbContext>().ResetDb();
+            });
 
             if (env.IsDevelopment())
             {

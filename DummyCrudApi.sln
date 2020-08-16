@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Dockerfile = Dockerfile
 		heroku-deploy.txt = heroku-deploy.txt
+		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbContextProvider", "DbContextProvider\DbContextProvider.csproj", "{3D3B7F89-9A1A-40DF-9E59-F91CAC7826A2}"
@@ -18,6 +19,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbContextProvider.FirebaseRealtimeDb", "DbContextProvider.FirebaseRealtimeDb\DbContextProvider.FirebaseRealtimeDb.csproj", "{BDC08E4B-8C3C-4F73-A1B1-EC25B57F531D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Retrofit", "Retrofit\Retrofit.csproj", "{192A8549-450B-45B8-9EA4-DC80F5884917}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyInjection.Extensions", "DependencyInjection.Extensions\DependencyInjection.Extensions.csproj", "{501398A2-E79F-46C6-A5BF-1C14D1DA36F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,5 +52,11 @@ Global
 		{192A8549-450B-45B8-9EA4-DC80F5884917}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{192A8549-450B-45B8-9EA4-DC80F5884917}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{192A8549-450B-45B8-9EA4-DC80F5884917}.Release|Any CPU.Build.0 = Release|Any CPU
+		{501398A2-E79F-46C6-A5BF-1C14D1DA36F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{501398A2-E79F-46C6-A5BF-1C14D1DA36F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{501398A2-E79F-46C6-A5BF-1C14D1DA36F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{501398A2-E79F-46C6-A5BF-1C14D1DA36F0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 EndGlobal

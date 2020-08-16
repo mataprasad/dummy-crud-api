@@ -54,6 +54,10 @@ namespace DbContextProvider
             return dbContext.Query<T>(queryInfo) ?? new List<T>();
         }
 
+        public void ResetDb()
+        {
+        }
+
         public T Single<T>(string tableName, object id, string idColumn = "id")
         {
             var query = new Query(tableName).Where(idColumn, id);

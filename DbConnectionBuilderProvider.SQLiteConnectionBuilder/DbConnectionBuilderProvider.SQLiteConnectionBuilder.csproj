@@ -6,12 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="5.0.0" />
     <PackageReference Include="SqlKata" Version="2.2.0" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DbConnectionBuilderProvider\DbConnectionBuilderProvider.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+    <ProjectReference Include="..\DependencyInjection.Extensions\DependencyInjection.Extensions.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
   </ItemGroup>

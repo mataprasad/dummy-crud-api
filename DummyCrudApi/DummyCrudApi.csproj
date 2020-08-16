@@ -19,7 +19,6 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.1" />
     <PackageReference Include="SqlKata" Version="2.2.0" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Hashids.net" Version="1.3.0" />
   </ItemGroup>
   <ItemGroup>
@@ -33,6 +32,9 @@
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
     <ProjectReference Include="..\DbContextProvider.FirebaseRealtimeDb\DbContextProvider.FirebaseRealtimeDb.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+    <ProjectReference Include="..\DependencyInjection.Extensions\DependencyInjection.Extensions.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
   </ItemGroup>

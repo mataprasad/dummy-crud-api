@@ -2,10 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Autofac;
-using Autofac.Core;
-using DbContextProvider;
-using Microsoft.AspNetCore.Hosting;
+using DependencyInjection.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,14 +12,14 @@ namespace DummyCrudApi.Fx
     {
         public static IServiceCollection AddDynamicRegistartion(this IServiceCollection services, IConfiguration configuration, string providerKeyInConfig)
         {
-            CallMethodsFromReflection<DbContextProviderDI>(configuration, providerKeyInConfig, (module) => module.AddDependencies(services));
+            CallMethodsFromReflection<DIModule>(configuration, providerKeyInConfig, (module) => module.AddDependencies(services));
             return services;
         }
 
-        public static void LoadDynamicAutofacModule(IWebHostEnvironment env, IConfiguration configuration, ContainerBuilder builder, string providerKeyInConfig)
-        {
-            CallMethodsFromReflection<IModule>(configuration, providerKeyInConfig, (module) => builder.RegisterModule(module));
-        }
+        //public static void LoadDynamicAutofacModule(IWebHostEnvironment env, IConfiguration configuration, ContainerBuilder builder, string providerKeyInConfig)
+        //{
+        //    CallMethodsFromReflection<IModule>(configuration, providerKeyInConfig, (module) => builder.RegisterModule(module));
+        //}
 
         private static void CallMethodsFromReflection<T>(IConfiguration configuration,string providerKeyInConfig,Action<T> invoker)
         {
