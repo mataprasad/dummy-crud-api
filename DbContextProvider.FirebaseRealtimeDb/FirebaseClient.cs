@@ -5,20 +5,21 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace DbContextProvider.FirebaseRealtimeDb
 {
     public class FirebaseClient
     {
-        public const string FIREBASE_DB_URL_CONFIG_KEY = "FirebaseDbUrl";
-        public const string FIREBASE_HTTP_CLIENT_NAME = "FIREBASE_HTTP_CLIENT";
         private HttpClient httpClient;
+        private FirebaseAuthOption firebaseAuthOption;
 
-        public FirebaseClient(IConfiguration configuration, IHttpClientFactory httpClient)
+        public FirebaseClient(ILogger<FirebaseClient> logger, IConfiguration configuration, IHttpClientFactory httpClient, FirebaseAuthOption firebaseAuthOption)
         {
-            this.httpClient = httpClient.CreateClient(FIREBASE_HTTP_CLIENT_NAME);
-            this.httpClient.BaseAddress = new Uri(configuration[FIREBASE_DB_URL_CONFIG_KEY]);
+            this.firebaseAuthOption = firebaseAuthOption;
+            this.httpClient = httpClient.CreateClient(DI.GOOGLE_HTTP_CLIENT);
+            this.httpClient.BaseAddress = new Uri(this.firebaseAuthOption.FirebaseDbUrl);
         }
 
         public string Get(string url)
@@ -46,28 +47,6 @@ namespace DbContextProvider.FirebaseRealtimeDb
             var resp = this.httpClient.SendAsync(request).Result;
             resp?.EnsureSuccessStatusCode();
             return resp;
-        }
-    }
-
-    public class RefreshAndSetFirebaseAuthToken : DelegatingHandler
-    {
-        private GoogleAuthHelper googleAuthHelper;
-
-        public RefreshAndSetFirebaseAuthToken(GoogleAuthHelper googleAuthHelper)
-        {
-            this.googleAuthHelper = googleAuthHelper;
-        }
-
-        protected override async Task<HttpResponseMessage> SendAsync(
-            HttpRequestMessage request,
-            CancellationToken cancellationToken)
-        {
-            var token = this.googleAuthHelper?.GetAccessToken();
-            if (!String.IsNullOrWhiteSpace(token))
-            {
-                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
-            return await base.SendAsync(request, cancellationToken);
         }
     }
 }

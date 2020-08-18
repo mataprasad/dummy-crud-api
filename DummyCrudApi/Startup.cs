@@ -20,7 +20,14 @@ namespace DummyCrudApi
         public Startup(IWebHostEnvironment env, IConfiguration configuration)
         {
             this.env = env;
-            this.Configuration = configuration;
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+            StartupHelper.AddConfigurationProvider(builder, configuration, "IDbConnectionBuilder");
+            StartupHelper.AddConfigurationProvider(builder, configuration, "IDbContext");
+            this.Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; private set; }

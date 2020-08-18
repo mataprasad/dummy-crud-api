@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DbContextProvider;
+using DbContextProvider.FirebaseRealtimeDb;
 using DummyCrudApi.Models;
 using DummyCrudApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -15,9 +16,9 @@ namespace DummyCrudApi.Controllers
     [ApiController]
     public class CategoryController : DummyCrudApiController
     {
-
         public CategoryController(IDbContext dbContext, ILogger<CategoryController> logger)
-            : base(dbContext, logger) { }
+            : base(dbContext, logger) {
+        }
 
         [HttpGet]
         public ActionResult<IEnumerable<Category>> Get([FromQuery] int pageSize = 100, [FromQuery] int pageNo = 1)

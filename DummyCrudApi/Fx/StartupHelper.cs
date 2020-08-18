@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,8 +13,14 @@ namespace DummyCrudApi.Fx
     {
         public static IServiceCollection AddDynamicRegistartion(this IServiceCollection services, IConfiguration configuration, string providerKeyInConfig)
         {
-            CallMethodsFromReflection<DIModule>(configuration, providerKeyInConfig, (module) => module.AddDependencies(services));
+            CallMethodsFromReflection<DIModule>(providerKeyInConfig, (module) => module.AddDependencies(configuration, services), configuration);
             return services;
+        }
+
+        public static IConfigurationBuilder AddConfigurationProvider(IConfigurationBuilder configurationBuilder, IConfiguration configuration, string providerKeyInConfig)
+        {
+            CallMethodsFromReflection<DIModule>(providerKeyInConfig, (module) => module.AddConfigurationProvider(configurationBuilder), configuration);
+            return configurationBuilder;
         }
 
         //public static void LoadDynamicAutofacModule(IWebHostEnvironment env, IConfiguration configuration, ContainerBuilder builder, string providerKeyInConfig)
@@ -21,14 +28,13 @@ namespace DummyCrudApi.Fx
         //    CallMethodsFromReflection<IModule>(configuration, providerKeyInConfig, (module) => builder.RegisterModule(module));
         //}
 
-        private static void CallMethodsFromReflection<T>(IConfiguration configuration,string providerKeyInConfig,Action<T> invoker)
+        private static void CallMethodsFromReflection<T>(string providerKeyInConfig, Action<T> invoker, IConfiguration configuration)
         {
             var path = Path.GetDirectoryName(typeof(StartupHelper).Assembly.Location);
             if (String.IsNullOrWhiteSpace(path))
             {
                 return;
             }
-
             var assemblyName = String.Format("{0}.dll", configuration[providerKeyInConfig]);
 
             //  Gets all compiled assemblies.
@@ -36,6 +42,8 @@ namespace DummyCrudApi.Fx
             //  if there are interfaces within the modules.
             var assemblies = Directory.GetFiles(path, assemblyName, SearchOption.TopDirectoryOnly)
                                       .Select(Assembly.LoadFrom);
+
+
 
             foreach (var assembly in assemblies)
             {

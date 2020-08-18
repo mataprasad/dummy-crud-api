@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DependencyInjection.Extensions
@@ -7,6 +8,8 @@ namespace DependencyInjection.Extensions
     {
         public DIModule() { }
 
-        public abstract IServiceCollection AddDependencies(IServiceCollection services);
+        public abstract IConfigurationBuilder AddConfigurationProvider(IConfigurationBuilder configurationBuilder);
+
+        public abstract IServiceCollection AddDependencies(IConfiguration configuration, IServiceCollection services);
     }
 }

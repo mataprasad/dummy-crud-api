@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Retrofit", "Retrofit\Retrof
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyInjection.Extensions", "DependencyInjection.Extensions\DependencyInjection.Extensions.csproj", "{501398A2-E79F-46C6-A5BF-1C14D1DA36F0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test1", "Test1\Test1.csproj", "{D0417E8D-00B4-48EA-BBCE-C96B78077DB6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{501398A2-E79F-46C6-A5BF-1C14D1DA36F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{501398A2-E79F-46C6-A5BF-1C14D1DA36F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{501398A2-E79F-46C6-A5BF-1C14D1DA36F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0417E8D-00B4-48EA-BBCE-C96B78077DB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0417E8D-00B4-48EA-BBCE-C96B78077DB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0417E8D-00B4-48EA-BBCE-C96B78077DB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0417E8D-00B4-48EA-BBCE-C96B78077DB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
