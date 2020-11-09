@@ -25,6 +25,18 @@ namespace DummyCrudApi.Controllers
             return dbContext.PagedList<Employee>("Employee", pageSize, pageNo).ToList();
         }
 
+        [HttpGet("list")]
+        public ActionResult<object> GetList([FromQuery] int pageSize = 100, [FromQuery] int pageNo = 1)
+        {
+            long totalCount;
+            var data = dbContext.PagedListWithCount<Employee>("Employee", pageSize, pageNo,out totalCount).ToList();
+            return new
+            {
+                data,
+                totalCount
+            };
+        }
+
         [HttpGet("{id}")]
         public ActionResult<Employee> Get(string id)
         {

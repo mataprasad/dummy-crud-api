@@ -80,6 +80,12 @@ namespace DbContextProvider.FirebaseRealtimeDb
         {
             
         }
+
+        public IEnumerable<T> PagedListWithCount<T>(string tableName, int pageSize, int pageNo, out long totalCount)
+        {
+            totalCount = 0;
+            return PagedList<T>(tableName, pageSize, pageNo);
+        }
     }
 
     public static class FirebaseDbContextExt

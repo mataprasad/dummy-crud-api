@@ -13,6 +13,7 @@ namespace DbContextProvider
         string Tag { get; }
         void ResetDb();
         IEnumerable<T> PagedList<T>(string tableName, int pageSize, int pageNo);
+        IEnumerable<T> PagedListWithCount<T>(string tableName, int pageSize, int pageNo,out long totalCount);
         T Single<T>(string tableName, object id, string idColumn = "id");
         bool Delete(string tableName, object id, string idColumn = "id");
         bool Insert(string tableName, object data, object id, string idColumn = "id");

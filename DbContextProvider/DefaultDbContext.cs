@@ -54,6 +54,14 @@ namespace DbContextProvider
             return dbContext.Query<T>(queryInfo) ?? new List<T>();
         }
 
+        public IEnumerable<T> PagedListWithCount<T>(string tableName, int pageSize, int pageNo, out long totalCount)
+        {
+            var query = new Query(tableName).AsCount();
+            var queryInfo = dbContext.QueryInfo(query, tableName);
+            totalCount = Convert.ToInt64(dbContext.ExecuteScalar(queryInfo));
+            return PagedList<T>(tableName, pageSize, pageNo);
+        }
+
         public void ResetDb()
         {
         }
