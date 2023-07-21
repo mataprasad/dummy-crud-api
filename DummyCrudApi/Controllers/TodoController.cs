@@ -38,7 +38,7 @@ namespace DummyCrudApi.Controllers
         [HttpPost]
         public ActionResult<Todo> Post([FromBody] Todo value)
         {
-            value.Id = DateTime.UtcNow.Ticks;
+            value.Id = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
             dbContext.Insert("Todo", value, value.Id);
             return StatusCode(201, "Created");
         }
@@ -49,6 +49,7 @@ namespace DummyCrudApi.Controllers
             var obj = dbContext.Single<Todo>("Todo", id);
             if (obj != null)
             {
+                value.Id = obj.Id;
                 dbContext.Update("Todo", value, id);
             }
             return Get(value._key);
