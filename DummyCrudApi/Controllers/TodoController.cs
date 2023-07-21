@@ -52,7 +52,7 @@ namespace DummyCrudApi.Controllers
                 value.Id = obj.Id;
                 dbContext.Update("Todo", value, id);
             }
-            return Get(value._key);
+            return Get(id);
         }
 
         [HttpDelete("{id}")]
