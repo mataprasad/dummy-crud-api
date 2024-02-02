@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DbContextProvider;
 using DummyCrudApi.Controllers;
 using DummyCrudApi.Fx;
@@ -75,6 +76,25 @@ namespace DummyCrudApi
                     }
                 });
                 c.OperationFilter<SwaggerUnauthorizedResponse>();
+                // c.AddSecurityDefinition("Basic", new OpenApiSecurityScheme
+                // {
+                //     Description = "Basic auth added to authorization header",
+                //     Name = "Authorization",
+                //     In = ParameterLocation.Header,
+                //     Scheme = "basic",
+                //     Type = SecuritySchemeType.Http
+                // });
+                //
+                // c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                // {
+                //     {
+                //         new OpenApiSecurityScheme
+                //         {
+                //             Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Basic" }
+                //         },
+                //         new List<string>()
+                //     }
+                // });
             });
             services.AddDynamicRegistartion(Configuration, "IDbConnectionBuilder");
             services.AddDynamicRegistartion(Configuration, "IDbContext");
